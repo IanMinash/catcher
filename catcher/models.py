@@ -10,6 +10,9 @@ from .database import Base
 class CatchPhrase(Base):
     __tablename__ = "catch_phrases"
 
+    WORDCOUNT_REGEX = re.compile(r"[ ]?\((\d+),(\d+)\)[ ]?")
+    WORD_SUB = "( *[A-Za-z0-9_]+ *){\\g<1>,\\g<2>}"
+
     id = Column(Integer, primary_key=True)
     mapping_answer = Column(String, index=True)
     phrase = Column(String, unique=True)
@@ -17,9 +20,7 @@ class CatchPhrase(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     def create(self, db: Session):
-        WORDCOUNT_REGEX = re.compile(r"\((\d+),(\d+)\)")
-        WORD_SUB = "([A-Za-z0-9_]+ *){\\g<1>,\\g<2>}"
-        self.phrase = WORDCOUNT_REGEX.sub(WORD_SUB, str(self.phrase))
+        self.phrase = self.WORDCOUNT_REGEX.sub(self.WORD_SUB, str(self.phrase))
         db.add(self)
         db.commit()
         db.refresh(self)
@@ -31,6 +32,10 @@ class CatchPhrase(Base):
 
     def update(self, db: Session, update_fields: dict):
         for field in update_fields:
+            if field == "phrase":
+                update_fields[field] = self.WORDCOUNT_REGEX.sub(
+                    self.WORD_SUB, update_fields[field]
+                )
             setattr(self, field, update_fields[field])
         db.commit()
         db.refresh(self)
