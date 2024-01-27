@@ -19,3 +19,7 @@ class CatchPhrase(CatchPhraseBase):
 
     class Config:
         from_attributes = True
+
+
+class CatchPhraseCSVResponse(BaseModel):
+    count: int

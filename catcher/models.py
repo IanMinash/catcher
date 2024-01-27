@@ -19,12 +19,30 @@ class CatchPhrase(Base):
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
+    def __repr__(self):
+        return f"[{self.mapping_answer}] {self.phrase}"
+
     def create(self, db: Session):
         self.phrase = self.WORDCOUNT_REGEX.sub(self.WORD_SUB, str(self.phrase))
         db.add(self)
         db.commit()
         db.refresh(self)
         return self
+
+    @classmethod
+    def create_many(cls, db: Session, catch_phrases: list[dict]):
+        from sqlalchemy import insert
+
+        catch_phrases = [
+            {
+                "mapping_answer": phrase["mapping_answer"],
+                "phrase": cls.WORDCOUNT_REGEX.sub(cls.WORD_SUB, phrase["phrase"]),
+            }
+            for phrase in catch_phrases
+        ]
+        result = db.execute(insert(cls).returning(cls), catch_phrases)
+        db.commit()
+        return result
 
     def delete(self, db: Session):
         db.delete(self)

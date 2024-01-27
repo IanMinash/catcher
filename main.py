@@ -1,7 +1,13 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+import csv
+import codecs
+
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+
 from catcher.database import SessionLocal, engine
 from catcher import models, schemas
+
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -65,5 +71,25 @@ def delete_phrase(id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No catch phrase has been found with the given id",
         )
-    catch_phrase.delete()
+    catch_phrase.delete(db)
     return
+
+
+@app.post(
+    "/phrases/csv",
+    status_code=status.HTTP_201_CREATED,
+    response_model=schemas.CatchPhraseCSVResponse,
+)
+def upload_phrases_csv(csv_file: UploadFile, db: Session = Depends(get_db)):
+    """Expects a CSV file with the headers phrase and mapping_answer. Returns number of inserted documents"""
+    reader = csv.DictReader(codecs.iterdecode(csv_file.file, "utf-8"))
+    insert_records = list(reader)
+    try:
+        phrases = models.CatchPhrase.create_many(db, insert_records)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="IntegrityError: please check the input file for duplicated",
+        )
+    phrases_list = phrases.all()
+    return {"count": len(phrases_list)}

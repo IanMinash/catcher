@@ -8,6 +8,10 @@ fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 sqlalchemy = "*"
 python-decouple = "*"
+python-multipart = "*"
+psycopg2-binary = "*"
+httpx = "*"
+pytest = "*"
 
 [dev-packages]
 
