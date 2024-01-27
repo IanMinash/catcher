@@ -23,3 +23,7 @@ class CatchPhrase(CatchPhraseBase):
 
 class CatchPhraseCSVResponse(BaseModel):
     count: int
+
+
+class MatchSentenceRequest(BaseModel):
+    sentence: str

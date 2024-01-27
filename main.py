@@ -1,5 +1,6 @@
 import csv
 import codecs
+import re
 
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
@@ -93,3 +94,23 @@ def upload_phrases_csv(csv_file: UploadFile, db: Session = Depends(get_db)):
         )
     phrases_list = phrases.all()
     return {"count": len(phrases_list)}
+
+
+@app.post("/phrases/match", response_model=schemas.CatchPhrase)
+def match_sentence(input: schemas.MatchSentenceRequest, db: Session = Depends(get_db)):
+    # Narrow search space using the mapping_answer to filter results that we will match against.
+    words = input.sentence.upper().split()
+    possible_matches = (
+        db.query(models.CatchPhrase)
+        .filter(models.CatchPhrase.mapping_answer.in_(words))
+        .all()
+    )
+    for possible_match in possible_matches:
+        match_regexp = re.compile(rf"{possible_match.phrase}")
+        if match_regexp.fullmatch(input.sentence):
+            return possible_match
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="No matching mapping has been found",
+    )
