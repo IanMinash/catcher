@@ -3,4 +3,4 @@ phrase,mapping_answer
 "(0,2) block me (0,1)",BLOCK
 "(0,1) kill myself",KILL
 "Love me",LOVE
-"(0,2) are you doing (0, 1)",DOING
+"(0,2) are you doing (0,1)",DOING
