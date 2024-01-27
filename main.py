@@ -54,7 +54,7 @@ def update_phrase(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No catch phrase has been found with the given id",
         )
-    catch_phrase.update(db, phrase)
+    return catch_phrase.update(db, phrase.model_dump())
 
 
 @app.delete("/phrases/{id}", status_code=status.HTTP_204_NO_CONTENT)
