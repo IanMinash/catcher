@@ -58,7 +58,7 @@ def update_phrase(
 
 
 @app.delete("/phrases/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def update_phrase(id: int, db: Session = Depends(get_db)):
+def delete_phrase(id: int, db: Session = Depends(get_db)):
     catch_phrase = models.CatchPhrase.get_by_id(db, id)
     if not catch_phrase:
         raise HTTPException(
