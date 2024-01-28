@@ -84,6 +84,11 @@ def delete_phrase(id: int, db: Session = Depends(get_db)):
 def upload_phrases_csv(csv_file: UploadFile, db: Session = Depends(get_db)):
     """Expects a CSV file with the headers phrase and mapping_answer. Returns number of inserted documents"""
     reader = csv.DictReader(codecs.iterdecode(csv_file.file, "utf-8"))
+    if not set(reader.fieldnames).issuperset(set(["mapping_answer", "phrase"])):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The provided csv does not contain required columns phrase and mapping answer.",
+        )
     insert_records = list(reader)
     try:
         phrases = models.CatchPhrase.create_many(db, insert_records)
