@@ -10,7 +10,7 @@ from .database import Base
 class CatchPhrase(Base):
     __tablename__ = "catch_phrases"
 
-    WORDCOUNT_REGEX = re.compile(r"[ ]?\((\d+),(\d+)\)[ ]?")
+    WORDCOUNT_REGEX = re.compile(r"[ ]?\( *(\d+) *, *(\d+) *\)[ ]?")
     WORD_SUB = "( *[A-Za-z0-9_]+ *){\\g<1>,\\g<2>}"
 
     id = Column(Integer, primary_key=True)
