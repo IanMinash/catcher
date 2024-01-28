@@ -11,7 +11,7 @@ class CatchPhrase(Base):
     __tablename__ = "catch_phrases"
 
     WORDCOUNT_REGEX = re.compile(r"[ ]?\( *(\d+) *, *(\d+) *\)[ ]?")
-    WORD_SUB = "( *[A-Za-z0-9_]+ *){\\g<1>,\\g<2>}"
+    WORD_SUB = "( *[A-Za-z0-9_]+[,;:!\.\?]? *){\\g<1>,\\g<2>}"
 
     id = Column(Integer, primary_key=True)
     mapping_answer = Column(String, index=True)

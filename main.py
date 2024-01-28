@@ -104,7 +104,8 @@ def upload_phrases_csv(csv_file: UploadFile, db: Session = Depends(get_db)):
 @app.post("/phrases/match", response_model=schemas.CatchPhrase)
 def match_sentence(input: schemas.MatchSentenceRequest, db: Session = Depends(get_db)):
     # Narrow search space using the mapping_answer to filter results that we will match against.
-    words = input.sentence.upper().split()
+    cleaned_sentence = re.sub("[^0-9a-zA-Z]+", " ", input.sentence).upper()
+    words = cleaned_sentence.split()
     possible_matches = (
         db.query(models.CatchPhrase)
         .filter(models.CatchPhrase.mapping_answer.in_(words))
